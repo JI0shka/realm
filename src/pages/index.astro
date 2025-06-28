@@ -1,0 +1,981 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CharacterCard from '../components/CharacterCard.astro';
+import { chapters } from '../data/chapters';
+
+const total = chapters.length;
+function plural(n:number){
+	const mod10 = n % 10;
+	const mod100 = n % 100;
+	if(mod10===1 && mod100!==11) return 'глава';
+	if(mod10>=2 && mod10<=4 && (mod100<10 || mod100>=20)) return 'главы';
+	return 'глав';
+}
+const label = `${total} ${plural(total)} загружено`;
+---
+
+<Layout title="Теневой раб">
+	<div class="scroll-container">
+		<section class="hero-section">
+			<div class="chapters-counter">{label}<span class="status-dot"></span></div>
+			<div class="content-wrapper">
+				<div class="synopsis" transition:animate="slide">
+					<h1 class="title" transition:name="main-title">Теневой раб</h1>
+					<p class="author">by Guiltythree</p>
+					<p class="synopsis-text">
+						Выросший в бедности, Санни никогда не ждал от жизни ничего хорошего. Однако даже он не ожидал, что будет избран Заклятием Кошмара и станет одним из Пробужденных - элитной группы людей, наделенных сверхъестественными способностями. Перенесенный в разрушенный магический мир, он оказался лицом к лицу с ужасными монстрами - и другими Пробужденными - в смертельной битве за выживание.
+Хуже того, божественная сила, которую он получил, оказалась с небольшим, но потенциально смертельным побочным эффектом...
+					</p>
+				</div>
+				<div class="character-cards-wrapper">
+					<CharacterCard 
+						charId="2" 
+						name="Нефис" 
+						imgSrc="/images/Nephis.webp"
+						quote="Этот мир, Санни. Это проклятое место. Царство Сна. Нет, я не буду первой, кто покорит Четвертый Кошмар. Я буду первой, кто покорит каждый Кошмар. Я пройду через них один за другим, уничтожая все и всех, кто встанет у меня на пути. И когда я доберусь до сердца Заклятия Кошмара, я уничтожу каждую его часть, я разорву его в клочья, я истреблю и превращу его в руины."
+						quoteAttribution="Нефис, обращаясь к Санни"
+						style="position: absolute; top: 25px; left: 50%; transform: rotate(3deg); z-index: 2;" />
+					<CharacterCard 
+						charId="1" 
+						name="Санни"
+						imgSrc="/images/Sunny.webp"
+						quote="Знаешь... когда я только попал сюда, я был готов умереть. В конце концов, во всем этом мире — на самом деле, в двух мирах — нет ни единой души, которой было бы не все равно, живу я или умру. Когда меня не станет, никто не опечалится. Никто даже не вспомнит, что я существовал. Но потом я передумал. Где-то на пути я решил выжить. Я должен выжить, чего бы это ни стоило... Чтобы позлить вас всех."
+						quoteAttribution="Санни, обращаясь к Герою"
+						style="position: absolute; top: 95px; left: 10%; transform: rotate(-8deg) scale(1.05); z-index: 3;" />
+					<CharacterCard 
+						charId="3" 
+						name="Кэсси" 
+						imgSrc="/images/Cassie.webp"
+						quote="Ты, наверное, не знаешь. Откуда тебе знать? Но знание... знание может быть очень тяжелым. Тяжелее, чем самая тяжелая вещь в мире."
+						quoteAttribution="Кэсси, обращаясь к Санни"
+						style="position: absolute; top: 115px; left: 85%; transform: rotate(8deg); z-index: 1;" />
+				</div>
+			</div>
+			<div class="scroll-down-prompt">
+				<div class="mouse-icon">
+					<div class="mouse-wheel"></div>
+				</div>
+			</div>
+			<div class="swipe-up-prompt">
+				<svg class="swipe-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+					<path d="M50,20 a10,10 0 1,0 0,20 a10,10 0 1,0 0,-20" fill="rgba(255,255,255,0.4)"/>
+					<path d="M50,80 L40,65 L60,65 Z" fill="rgba(255,255,255,0.4)"/>
+				</svg>
+			</div>
+		</section>
+
+		<section id="reader" class="reader-section">
+			<button id="chapters-btn" class="reader-icon-btn left">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+			</button>
+			<button id="settings-btn" class="reader-icon-btn">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+			</button>
+			<div class="reader-content">
+				<div id="chapters-panel" class="chapters-panel">
+					<div class="chapters-header">
+						<h4>Содержание</h4>
+					</div>
+					<div class="chapters-controls">
+						<input type="text" id="chapter-search" placeholder="Поиск по названию...">
+						<button id="sort-chapters-btn">Сортировать ⇅</button>
+					</div>
+					<div id="chapters-list" class="chapters-list">
+						<!-- Chapter list will be injected here -->
+					</div>
+				</div>
+
+				<div id="settings-panel" class="settings-panel">
+					<div class="settings-header">
+						<h4>Настройки</h4>
+					</div>
+					<div class="settings-body">
+						<div class="setting-group">
+							<label>Тема</label>
+							<div class="theme-options">
+								<button class="theme-btn" data-theme="theme-dark" style="background: #1a1a1a;"></button>
+								<button class="theme-btn" data-theme="theme-sepia" style="background: #fbf0d9;"></button>
+							</div>
+						</div>
+						<div class="setting-group">
+							<label>Шрифт</label>
+							<div class="font-options">
+								<button class="font-btn" data-font="font-jost">Стандартный</button>
+								<button class="font-btn" data-font="font-inter">Нейтральный</button>
+								<button class="font-btn" data-font="font-lora">Элегантный</button>
+								<button class="font-btn" data-font="font-georgia">С засечками</button>
+							</div>
+						</div>
+						<div class="setting-group">
+							<label>Размер шрифта</label>
+							<div class="font-size-options">
+								<span class="font-size-label">A</span>
+								<input type="range" id="font-size-slider" min="14" max="24" step="1">
+								<span class="font-size-label large">A</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="chapter-injection-point" style="margin-top: 25px;">
+					<!-- Chapter content will be injected here -->
+				</div>
+			</div>
+		</section>
+
+		<section id="chapter-trigger" class="chapter-trigger"></section>
+	</div>
+</Layout>
+
+<script>
+	// Mouse move listener for spotlight effect
+	document.addEventListener('mousemove', (e) => {
+		document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+		document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+	});
+
+	// --- READER LOGIC ---
+	import { marked } from 'marked';
+	import { chapters } from '../data/chapters';
+
+	const readerContent = document.querySelector('.reader-content');
+	const readerSection = document.getElementById('reader');
+
+	let currentChapterNumber: number | null = null;
+	async function loadChapter(chapterNumber: number) {
+		currentChapterNumber = chapterNumber;
+		localStorage.setItem('lastChapter', chapterNumber.toString());
+		const chapter = chapters.find(c => c.number === chapterNumber);
+		if (!chapter) { console.error('Chapter', chapterNumber, 'not found'); return; }
+		const response = await fetch(chapter.url);
+		if (!response.ok) { console.error('Failed fetch'); return; }
+		const content = await response.text();
+
+		const html = `
+			<div class="reader-view">
+				<h2 class="chapter-title">Глава ${chapter.number}: ${chapter.title}</h2>
+				<div class="chapter-text">${marked.parse(content)}</div>
+			</div>`;
+
+		const container = document.getElementById('chapter-injection-point');
+		if (!container) return;
+		container.innerHTML = html;
+		readerSection?.scrollTo({ top: 0, behavior: 'smooth' });
+
+		readerContent?.setAttribute('style', 'display:block;');
+		applySettings(getSettings());
+	}
+
+	function getNextChapterNumber(): number | null {
+		if (currentChapterNumber === null) return null;
+		const currentIdx = chapters.findIndex(c => c.number === currentChapterNumber);
+		if (currentIdx === -1 || currentIdx === chapters.length - 1) return null;
+		return chapters[currentIdx + 1].number;
+	}
+
+	const triggerEl = document.getElementById('chapter-trigger');
+	if (triggerEl) {
+		const footerObserver = new IntersectionObserver((entries)=>{
+			const entry = entries[0];
+			if(entry.isIntersecting){
+				setTimeout(()=>{
+					if(entry.isIntersecting){
+						const next = getNextChapterNumber();
+						if(next!==null){
+							loadChapter(next).then(()=>{
+								triggerEl.classList.add('is-hidden');
+								readerSection?.scrollTo({top:0,behavior:'auto'});
+							});
+						}
+					}
+				},0);
+			} else {
+				triggerEl.classList.remove('is-hidden');
+			}
+		},{threshold:1});
+		footerObserver.observe(triggerEl);
+	}
+
+	// Wheel handler only for exiting reader when at top scrolling up
+	readerSection?.addEventListener('wheel', (e) => {
+		if (!readerSection) return;
+		const atTop = readerSection.scrollTop === 0;
+		if (e.deltaY < 0 && atTop) {
+			// Remove last (bottom) chapter view if more than one exists
+			window.scrollTo({top:0,behavior:'smooth'});
+		}
+	},{passive:false});
+
+	let chapterLoaded = false;
+	const observer = new IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting && !chapterLoaded) {
+					chapterLoaded = true;
+					const saved = parseInt(localStorage.getItem('lastChapter') || 'NaN');
+					const startChapter = !isNaN(saved) ? saved : (chapters[0]?.number ?? 0);
+					loadChapter(startChapter);
+					observer.unobserve(entry.target);
+				}
+			});
+		},
+		{ threshold: 0.1 } // Start loading when 10% of the section is visible
+	);
+
+	if (readerSection) {
+		observer.observe(readerSection);
+	}
+
+	// --- CHAPTERS PANEL LOGIC ---
+	const chaptersBtn = document.getElementById('chapters-btn');
+	const chaptersPanel = document.getElementById('chapters-panel');
+	const chaptersList = document.getElementById('chapters-list');
+	const chapterSearch = document.getElementById('chapter-search') as HTMLInputElement;
+	const sortChaptersBtn = document.getElementById('sort-chapters-btn');
+
+	let isSortAscending = true;
+
+	function openChaptersPanel() {
+		if (!chaptersPanel || !readerSection) return;
+		chaptersPanel.classList.add('is-open');
+		readerSection.classList.add('chapters-open');
+		settingsBtn?.classList.add('is-hidden');
+	}
+
+	function closeChaptersPanel() {
+		if (!chaptersPanel || !readerSection) return;
+		chaptersPanel.classList.remove('is-open');
+		readerSection.classList.remove('chapters-open');
+		settingsBtn?.classList.remove('is-hidden');
+	}
+
+	function renderChapters(filterText: string = '', sortAsc: boolean = true): void {
+		if (!chaptersList) return;
+
+		const filteredChapters = chapters.filter((c: any) => 
+			c.title.toLowerCase().includes(filterText.toLowerCase())
+		);
+
+		filteredChapters.sort((a: any, b: any) => {
+			return sortAsc ? a.number - b.number : b.number - a.number;
+		});
+
+		chaptersList.innerHTML = ''; // Clear list
+
+		filteredChapters.forEach((chapter: any) => {
+			const item = document.createElement('div');
+			item.className = 'chapter-list-item';
+			item.textContent = `${chapter.number}. ${chapter.title}`;
+			item.addEventListener('click', () => {
+				loadChapter(chapter.number);
+				closeChaptersPanel();
+			});
+			chaptersList.appendChild(item);
+		});
+	}
+
+	chaptersBtn?.addEventListener('click', (e) => {
+		e.stopPropagation();
+		openChaptersPanel();
+	});
+	
+	chapterSearch?.addEventListener('input', () => {
+		renderChapters(chapterSearch.value, isSortAscending);
+	});
+
+	sortChaptersBtn?.addEventListener('click', () => {
+		isSortAscending = !isSortAscending;
+		renderChapters(chapterSearch.value, isSortAscending);
+	});
+
+	// Initial render
+	renderChapters();
+
+	// --- SETTINGS LOGIC ---
+	interface ReaderSettings {
+		theme: string;
+		font: string;
+		fontSize: number;
+	}
+
+	const settingsBtn = document.getElementById('settings-btn');
+	const settingsPanel = document.getElementById('settings-panel');
+	const fontSizeSlider = document.getElementById('font-size-slider') as HTMLInputElement;
+
+	const defaultSettings: ReaderSettings = {
+		theme: 'theme-dark',
+		font: 'font-georgia',
+		fontSize: 18,
+	};
+
+	const fontMap: Record<string, string> = {
+		'font-georgia': "Georgia, 'Times New Roman', Times, serif",
+		'font-lora': "'Lora', serif",
+		'font-inter': "'Inter', sans-serif",
+		'font-jost': "'Jost', sans-serif"
+	};
+
+	function getSettings(): ReaderSettings {
+		try {
+			const savedSettings = localStorage.getItem('readerSettings');
+			return savedSettings ? JSON.parse(savedSettings) : defaultSettings;
+		} catch (e) {
+			console.error("Could not parse reader settings, using defaults.", e);
+			return defaultSettings;
+		}
+	}
+
+	function saveSettings(settings: ReaderSettings) {
+		localStorage.setItem('readerSettings', JSON.stringify(settings));
+	}
+
+	function applySettings(settings: ReaderSettings) {
+		if (!readerSection) return;
+		
+		// Apply theme
+		readerSection.classList.remove('theme-dark', 'theme-sepia', 'theme-light');
+		readerSection.classList.add(settings.theme);
+
+		// Apply font class & family
+		readerSection.classList.remove('font-georgia', 'font-lora', 'font-inter', 'font-jost');
+		readerSection.classList.add(settings.font);
+		const currentFamily = fontMap[settings.font];
+		readerSection.style.setProperty('--reader-font-family', currentFamily);
+
+		// Apply font size variable
+		readerSection.style.setProperty('--reader-font-size', `${settings.fontSize}px`);
+
+		// Force update of current chapter DOM if present
+		const chapterTextEl = readerSection.querySelector('.chapter-text') as HTMLElement | null;
+		if (chapterTextEl) {
+			chapterTextEl.style.fontFamily = currentFamily;
+			chapterTextEl.style.fontSize = `${settings.fontSize}px`;
+		}
+
+		// Update UI controls
+		document.querySelectorAll('.theme-btn, .font-btn').forEach(btn => btn.classList.remove('active'));
+		document.querySelector(`.theme-btn[data-theme="${settings.theme}"]`)?.classList.add('active');
+		document.querySelector(`.font-btn[data-font="${settings.font}"]`)?.classList.add('active');
+		if (fontSizeSlider) fontSizeSlider.value = settings.fontSize.toString();
+	}
+
+	function openSettings() {
+		if (!settingsPanel || !readerSection) return;
+		settingsPanel.classList.add('is-open');
+		readerSection.classList.add('settings-open');
+		chaptersBtn?.classList.add('is-hidden');
+	}
+
+	function closeSettings() {
+		if (!settingsPanel || !readerSection) return;
+		settingsPanel.classList.remove('is-open');
+		readerSection.classList.remove('settings-open');
+		chaptersBtn?.classList.remove('is-hidden');
+	}
+
+	settingsBtn?.addEventListener('click', (e) => {
+		e.stopPropagation();
+		openSettings();
+	});
+
+	settingsPanel?.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+		const settings = getSettings();
+
+		// Theme
+		if (target.matches('.theme-btn') && target.dataset.theme) {
+			settings.theme = target.dataset.theme;
+		}
+		// Font
+		if (target.matches('.font-btn') && target.dataset.font) {
+			settings.font = target.dataset.font;
+		}
+		
+		saveSettings(settings);
+		applySettings(settings);
+	});
+	
+	fontSizeSlider?.addEventListener('input', (e) => {
+		const settings = getSettings();
+		settings.fontSize = parseInt((e.target as HTMLInputElement).value);
+		saveSettings(settings);
+		applySettings(settings);
+	});
+
+	document.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+
+		if (chaptersPanel?.classList.contains('is-open') && chaptersBtn && !chaptersPanel.contains(target) && !chaptersBtn.contains(target)) {
+			closeChaptersPanel();
+		}
+
+		if (settingsPanel?.classList.contains('is-open') && settingsBtn && !settingsPanel.contains(target) && !settingsBtn.contains(target)) {
+			closeSettings();
+		}
+	});
+
+	// Apply initial settings on load
+	applySettings(getSettings());
+
+	const scrollContainer = document.querySelector('.scroll-container');
+	scrollContainer?.addEventListener('scroll', () => {
+		// If we are scrolling back up towards the hero section (e.g. scrollTop is less than half the viewport height)
+		if (scrollContainer.scrollTop < window.innerHeight * 0.5) {
+			closeSettings();
+		}
+	});
+</script>
+
+<style>
+	.scroll-container {
+		height: 100vh;
+		overflow-y: scroll;
+		scroll-snap-type: y mandatory;
+	}
+	.hero-section, .reader-section {
+		height: 100vh;
+		width: 100%;
+		scroll-snap-align: start;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+        overflow: hidden;
+	}
+	.content-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 60px;
+        width: 100%;
+        max-width: 1350px;
+        padding: 40px;
+        box-sizing: border-box;
+    }
+    .synopsis {
+        text-align: left;
+        z-index: 1;
+		padding-right: 100px;
+        color: var(--color-text);
+    }
+	.title {
+		font-size: clamp(3.2rem, 5vw, 4.2rem); /* Fluid font size */
+		font-weight: 900;
+        font-family: 'Playfair Display', serif;
+        color: var(--color-text);
+        text-shadow: 0 0 15px rgba(232, 226, 212, 0.3);
+	}
+	.author {
+		font-size: clamp(1.3rem, 2.5vw, 1.5rem); /* Fluid font size */
+		font-style: italic;
+		color: var(--color-primary);
+		margin-bottom: 24px;
+	}
+    .synopsis-text {
+        font-size: clamp(1rem, 1.5vw, 1.1rem); /* Fluid font size */
+        line-height: 1.7;
+        color: #c7c4be;
+    }
+	.character-cards-wrapper {
+		position: relative;
+        min-width: 800px;
+        width: 800px;
+        height: 650px;
+	}
+    .scroll-down-prompt {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        scale: 0.9;
+    }
+    .mouse-icon {
+        width: 24px;
+        height: 40px;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-radius: 12px;
+        position: relative;
+    }
+    .mouse-wheel {
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3px;
+        height: 8px;
+        background: rgba(255,255,255,0.4);
+        border-radius: 2px;
+        animation: scroll-wheel 2s infinite ease-in-out;
+    }
+    .swipe-up-prompt {
+        display: none;
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: swipe-up 2s infinite ease-in-out;
+    }
+    .swipe-icon {
+        width: 40px;
+        height: 60px;
+    }
+    @keyframes scroll-wheel {
+        0% { opacity: 1; transform: translate(-50%, 0); }
+        60% { opacity: 1; }
+        90% { opacity: 0; transform: translate(-50%, 5px); }
+        100% { opacity: 0; transform: translate(-50%, 0); }
+    }
+    @keyframes swipe-up {
+        0% { opacity: 0; transform: translate(-50%, 10px); }
+        50% { opacity: 1; }
+        100% { opacity: 0; transform: translate(-50%, -15px); }
+    }
+	
+	/* --- Reader Styles --- */
+	.reader-section {
+		background: var(--reader-bg, #1a1a1a);
+		color: var(--reader-text, #e8e2d4);
+		font-family: var(--reader-font-family, 'Jost', sans-serif);
+		font-size: var(--reader-font-size, 18px);
+		transition: background 0.3s ease, color 0.3s ease;
+		user-select: text;
+		-webkit-user-select: text;
+		-moz-user-select: text;
+		-ms-user-select: text;
+		justify-content: flex-start;
+		padding: 5vh 0;
+		overflow-y: auto;
+		scroll-snap-type: y mandatory;
+	}
+	.reader-content {
+		max-width: 800px;
+		width: 100%;
+		margin: 0 auto;
+		padding: 0 24px;
+	}
+	.reader-view {
+		height: 100vh;
+		scroll-snap-align: start;
+		padding-top: 5vh;
+	}
+	.reader-view h2 {
+		font-family: inherit;
+		font-weight: bold;
+		font-size: 2.2em;
+		margin-bottom: 2rem;
+		text-align: left;
+		line-height: 1.3;
+		color: var(--reader-text);
+	}
+	.chapter-text {
+		text-align: left;
+		line-height: 1.7;
+	}
+	.chapter-text p {
+		margin-bottom: 1.5em;
+	}
+	.reader-placeholder {
+		cursor: pointer;
+		text-align: center;
+	}
+	.reader-placeholder h1 {
+		font-size: 2.5rem;
+		margin-bottom: 1rem;
+	}
+	.reader-placeholder p {
+		font-size: 1.2rem;
+	}
+	.reader-icon-btn {
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		z-index: 1001;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		padding: 8px;
+		border-radius: 50%;
+		transition: opacity 0.3s ease, background-color 0.2s;
+	}
+	.reader-section.settings-open .reader-icon-btn {
+		opacity: 0;
+		pointer-events: none;
+	}
+	.reader-icon-btn svg {
+		display: block;
+		stroke: var(--reader-text);
+	}
+	#close-settings-btn {
+		position: static;
+		font-size: 2rem;
+		line-height: 0.5;
+		color: var(--reader-text);
+	}
+	
+	/* --- Settings Panel --- */
+	.settings-panel {
+		position: fixed;
+		top: 0;
+		right: -350px;
+		width: 320px;
+		height: 100%;
+		background: var(--reader-bg);
+		border-left: 1px solid rgba(128, 128, 128, 0.2);
+		box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+		padding: 20px;
+		z-index: 1000;
+		transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		display: flex;
+		flex-direction: column;
+		font-family: 'Jost', sans-serif;
+		font-size: 16px;
+		color: var(--reader-text);
+	}
+	.settings-panel.is-open {
+		right: 0;
+	}
+	.settings-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 30px;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+		padding-bottom: 15px;
+	}
+	.settings-header h4 {
+		font-size: 1.4rem;
+		font-weight: 600;
+		margin: 0;
+	}
+	.setting-group {
+		margin-bottom: 25px;
+	}
+	.setting-group label {
+		display: block;
+		margin-bottom: 12px;
+		font-weight: 600;
+		opacity: 0.8;
+	}
+	.theme-options, .font-size-options {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+	}
+	.theme-btn {
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		border: 3px solid var(--reader-bg);
+		outline: 1px solid rgba(128, 128, 128, 0.5);
+		cursor: pointer;
+		transition: outline-color 0.2s ease;
+	}
+	.theme-btn.active {
+		outline-color: var(--reader-text);
+		outline-width: 2px;
+	}
+	.font-options {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.font-btn {
+		width: 100%;
+		padding: 10px;
+		background: rgba(128, 128, 128, 0.1);
+		border: 1px solid transparent;
+		color: var(--reader-text);
+		text-align: left;
+		border-radius: 5px;
+		cursor: pointer;
+		transition: background 0.2s ease, border-color 0.2s ease;
+	}
+	.font-btn:hover {
+		background: rgba(128, 128, 128, 0.2);
+	}
+	.font-btn.active {
+		background: var(--reader-text);
+		border-color: var(--reader-text);
+		color: var(--reader-bg);
+		font-weight: bold;
+	}
+	.font-btn[data-font="font-jost"] { font-family: 'Jost', sans-serif; }
+	.font-btn[data-font="font-inter"] { font-family: 'Inter', sans-serif; }
+	.font-btn[data-font="font-lora"] { font-family: 'Lora', serif; }
+	.font-btn[data-font="font-georgia"] { font-family: "Georgia", 'Times New Roman', Times, serif; }
+
+	#font-size-slider {
+		flex-grow: 1;
+		cursor: pointer;
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 4px;
+		background: rgba(128, 128, 128, 0.3);
+		border-radius: 2px;
+		outline: none;
+	}
+	#font-size-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 18px;
+		height: 18px;
+		background: var(--reader-text);
+		cursor: pointer;
+		border-radius: 50%;
+		border: 3px solid var(--reader-bg);
+		outline: 1px solid var(--reader-text);
+	}
+	#font-size-slider::-moz-range-thumb {
+		width: 18px;
+		height: 18px;
+		background: var(--reader-text);
+		cursor: pointer;
+		border-radius: 50%;
+		border: 3px solid var(--reader-bg);
+		outline: 1px solid var(--reader-text);
+	}
+	.font-size-label {
+		font-size: 0.8em;
+	}
+	.font-size-label.large {
+		font-size: 1.5em;
+	}
+	/* Theme variables */
+	.theme-dark { --reader-bg: #1a1a1a; --reader-text: #e8e2d4; }
+	.theme-sepia { --reader-bg: #fbf0d9; --reader-text: #5b4636; }
+	
+	/* --- RESPONSIVE STYLES --- */
+    @media (min-width: 1850px) {
+        .title { white-space: nowrap; }
+    }
+    @media (max-height: 799px) and (min-width: 1850px) {
+        .character-cards-wrapper { display: none; }
+        .content-wrapper { justify-content: center; }
+    }
+    @media (max-width: 1849px) {
+        .character-cards-wrapper { display: none; }
+        .content-wrapper {
+            justify-content: center;
+            text-align: initial;
+            padding: 20px 25px;
+        }
+        .synopsis {
+            text-align: center;
+            min-width: 0;
+			padding-right: 0;
+        }
+        .synopsis-text { text-align: left; }
+        .scroll-down-prompt { display: none; }
+        .swipe-up-prompt { display: block; }
+    }
+	@media (max-width: 600px) {
+		.title {
+			font-size: 2.5rem;
+		}
+		.author {
+			font-size: 1.2rem;
+		}
+		.synopsis-text {
+			font-size: 1rem;
+		}
+		.reader-view {
+			padding: 1rem 0;
+		}
+	}
+
+	.chapter-header {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		margin-bottom: 2rem;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+
+	.chapter-title {
+		font-family: 'Playfair Display', serif;
+		font-size: 2.2rem;
+		font-weight: 700;
+	}
+
+	.chapter-nav {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-family: 'Playfair Display', serif;
+		font-size: 2.2rem;
+		font-weight: 700;
+	}
+
+	.chapter-input {
+		background-color: transparent;
+		color: var(--color-text);
+		border: none;
+		border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 0;
+		padding: 0.5rem 0.25rem;
+		font-size: 2.2rem;
+		font-family: 'Playfair Display', serif;
+		font-weight: 700;
+		width: 100px;
+		text-align: center;
+		-moz-appearance: textfield; /* Firefox */
+		transition: border-color 0.3s ease;
+	}
+
+	.chapter-input::-webkit-outer-spin-button,
+	.chapter-input::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	.chapter-input:focus {
+		outline: none;
+		border-color: var(--color-primary);
+	}
+
+	.reader-icon-btn.left {
+		left: 20px;
+		right: auto;
+	}
+	.chapters-panel {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 320px;
+		height: 100%;
+		background: var(--reader-bg);
+		color: var(--reader-text);
+		border-right: 1px solid rgba(128, 128, 128, 0.2);
+		box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+		padding: 20px;
+		transform: translateX(-100%);
+		transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		z-index: 1001;
+		display: flex;
+		flex-direction: column;
+		font-family: 'Jost', sans-serif;
+		font-size: 16px;
+	}
+	.chapters-panel.is-open {
+		transform: translateX(0);
+	}
+	.chapters-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 30px;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+		padding-bottom: 15px;
+	}
+	.chapters-header h4 {
+		font-size: 1.4rem;
+	}
+	.chapters-controls {
+		margin-bottom: 25px;
+	}
+	#chapter-search {
+		width: 100%;
+		padding: 10px 5px;
+		border: none;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+		background: transparent;
+		color: var(--reader-text);
+		font-family: 'Jost', sans-serif;
+		font-size: 1rem;
+		transition: border-color 0.3s ease;
+	}
+	#chapter-search::placeholder {
+		color: var(--reader-text);
+		opacity: 0.65;
+	}
+	#sort-chapters-btn {
+		padding: 10px 0;
+		border: none;
+		background: transparent;
+		color: var(--reader-text);
+		cursor: pointer;
+		font-family: 'Jost', sans-serif;
+		font-size: 1rem;
+		text-align: left;
+	}
+	#sort-chapters-btn:hover {
+		color: var(--reader-text);
+	}
+	.chapters-list {
+		flex-grow: 1;
+		overflow-y: auto;
+		padding: 0 5px;
+	}
+	.chapter-list-item {
+		padding: 12px 0 12px 15px;
+		cursor: pointer;
+		border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+		display: block;
+		transition: transform 0.15s ease;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-family: 'Jost', sans-serif;
+		transform-origin: left center;
+		will-change: transform;
+	}
+	.chapter-list-item:hover {
+		transform: scale(1.06) translateX(4px);
+		cursor: pointer;
+		color: var(--reader-text);
+	}
+	.chapter-list-item:last-child {
+		border-bottom: none;
+	}
+	.reader-icon-btn.is-hidden {
+		opacity: 0;
+		pointer-events: none;
+	}
+	.chapter-trigger{
+		min-height: 100vh;
+		height: 100vh;
+		display:flex;
+		justify-content:center;
+		align-items:center;
+		scroll-snap-align:start;
+		scroll-snap-stop: always;
+	}
+	.chapter-trigger.is-hidden{display:none;}
+	.chapters-counter{
+		position:absolute;
+		top:20px;
+		left:20px;
+		font-family:'Jost',sans-serif;
+		font-size:1rem;
+		color:var(--color-text);
+		padding:6px 10px;
+		z-index:2000;
+		display:flex;
+		align-items:center;
+		gap:6px;
+	}
+	.status-dot{
+		position:relative;
+		width:8px;
+		height:8px;
+		border-radius:50%;
+		background:var(--color-text);
+	}
+	.status-dot::after{
+		content:'';
+		position:absolute;
+		inset:0;
+		border-radius:50%;
+		background:var(--color-text);
+		opacity:0.6;
+		animation: halo 1.6s infinite;
+	}
+	@keyframes halo{
+		0%{transform:scale(1);opacity:0.6;}
+		70%{transform:scale(2.2);opacity:0;}
+		100%{opacity:0;}
+	}
+</style>
