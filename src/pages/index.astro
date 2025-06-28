@@ -122,8 +122,6 @@ const label = `${total} ${plural(total)} загружено`;
 				</div>
 			</div>
 		</section>
-
-		<section id="chapter-trigger" class="chapter-trigger"></section>
 	</div>
 </Layout>
 
@@ -151,16 +149,40 @@ const label = `${total} ${plural(total)} загружено`;
 		if (!response.ok) { console.error('Failed fetch'); return; }
 		const content = await response.text();
 
+		const nextChapterNumber = getNextChapterNumber();
+		const nextChapterButtonHtml = nextChapterNumber !== null
+			? `
+			<div class="next-chapter-container">
+				<button id="next-chapter-btn" class="next-chapter-btn" aria-label="Следующая глава">
+					<span class="next-chapter-text">Следующая глава</span>
+					<svg class="next-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="6 15 12 9 18 15"></polyline>
+					</svg>
+				</button>
+			</div>
+			`
+			: '';
+
 		const html = `
 			<div class="reader-view">
 				<h2 class="chapter-title">Глава ${chapter.number}: ${chapter.title}</h2>
 				<div class="chapter-text">${marked.parse(content)}</div>
+				${nextChapterButtonHtml}
 			</div>`;
 
 		const container = document.getElementById('chapter-injection-point');
 		if (!container) return;
 		container.innerHTML = html;
-		readerSection?.scrollTo({ top: 0, behavior: 'auto' });
+		readerSection?.scrollTo({ top: 0, behavior: 'smooth' });
+
+		if (nextChapterNumber !== null) {
+			document.getElementById('next-chapter-btn')?.addEventListener('click', () => {
+				const next = getNextChapterNumber();
+				if (next !== null) {
+					loadChapter(next);
+				}
+			});
+		}
 
 		readerContent?.setAttribute('style', 'display:block;');
 		applySettings(getSettings());
@@ -171,31 +193,6 @@ const label = `${total} ${plural(total)} загружено`;
 		const currentIdx = chapters.findIndex(c => c.number === currentChapterNumber);
 		if (currentIdx === -1 || currentIdx === chapters.length - 1) return null;
 		return chapters[currentIdx + 1].number;
-	}
-
-	const triggerEl = document.getElementById('chapter-trigger');
-	if (triggerEl) {
-		let isLoading = false;
-		const footerObserver = new IntersectionObserver((entries) => {
-			const entry = entries[0];
-			if (entry.isIntersecting && !isLoading) {
-				const next = getNextChapterNumber();
-				if (next !== null) {
-					isLoading = true;
-					triggerEl.classList.add('is-hidden');
-
-					loadChapter(next).then(() => {
-						readerSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-						
-						setTimeout(() => {
-							isLoading = false;
-							triggerEl.classList.remove('is-hidden');
-						}, 500);
-					});
-				}
-			}
-		}, { threshold: 0.75 });
-		footerObserver.observe(triggerEl);
 	}
 
 	// Wheel handler only for exiting reader when at top scrolling up
@@ -980,4 +977,85 @@ const label = `${total} ${plural(total)} загружено`;
 		70%{transform:scale(2.2);opacity:0;}
 		100%{opacity:0;}
 	}
+	.next-chapter-container {
+		text-align: center;
+		padding: 3rem 0 2rem;
+	}
+
+	#next-chapter-btn {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 0.35rem;
+		padding: 0.5rem 1rem;
+		background-color: transparent;
+		border: none;
+		color: var(--reader-text);
+		font-family: inherit;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: opacity 0.2s ease;
+	}
+
+	#next-chapter-btn:hover {
+		opacity: 0.8;
+	}
+
+	.next-chapter-text {
+		font-size: 1.1rem;
+		font-weight: 500;
+		color: var(--reader-text);
+	}
+
+	.next-arrow {
+		stroke: rgba(255, 255, 255, 0.8);
+		animation: arrow-up-bounce 1.6s ease-in-out infinite;
+	}
+
+	@keyframes arrow-up-bounce {
+		0%   { transform: translateY(0); }
+		50%  { transform: translateY(-4px); }
+		100% { transform: translateY(0); }
+	}
+
+	#next-chapter-btn:hover .next-arrow {
+		stroke: #ffffff;
+	}
+</style>
+
+<style is:global>
+.next-chapter-container{
+  text-align:center;
+  padding:3rem 0 2rem;
+}
+#next-chapter-btn{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0.35rem;
+  padding:0.5rem 1rem;
+  background-color:transparent;
+  border:none;
+  color:var(--reader-text);
+  font-family:inherit;
+  font-size:1rem;
+  cursor:pointer;
+  transition:opacity 0.2s ease;
+}
+#next-chapter-btn:hover{opacity:0.8;}
+.next-chapter-text{
+  font-size:1.1rem;
+  font-weight:500;
+  color:var(--reader-text);
+}
+.next-arrow{
+  stroke:rgba(255,255,255,0.8);
+  animation:arrow-up-bounce 1.6s ease-in-out infinite;
+}
+@keyframes arrow-up-bounce{
+  0%{transform:translateY(0);}50%{transform:translateY(-4px);}100%{transform:translateY(0);}
+}
+#next-chapter-btn:hover .next-arrow{stroke:#ffffff;}
 </style>
