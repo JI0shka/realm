@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,900;1,400&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lora:ital@0;1&family=Inter:wght@400;700&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+    --color-background: #1a1a1a;
+    --color-text: #e8e2d4;
+    --color-primary: #8a78f8; /* Яркий фиолетовый для акцента */
+    --color-secondary: #3498db; /* Яркий синий для второго акцента */
+    --color-card-bg: #e8e2d4;
+    --color-card-text: #1a1a1a;
+
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: 'Jost', sans-serif;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    position: relative;
+    user-select: none; /* Disable text selection */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+}
+
+/* Эффект шума */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250"><filter id="noise"><feTurbulence baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 10;
+}
+
+body::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), transparent 0%, rgba(155, 89, 182, 0.01) 5%, transparent 10%);
+    pointer-events: none;
+    z-index: -1;
+    transition: background 0.2s ease-out;
+}
+
+@media (hover: none) or (max-width: 1024px) {
+    body::after {
+        display: none;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+/* Global styles for chapters list items (not scoped) */
+.chapter-list-item {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  transform-origin: left center;
+}
+.chapter-list-item:hover {
+  transform: scale(1.06) translateX(4px);
+}
