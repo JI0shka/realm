@@ -1,0 +1,20 @@
+{
+  "name": "realm",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@types/marked": "^5.0.2",
+    "animejs": "^4.0.2",
+    "astro": "^5.10.1",
+    "marked": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13"
+  }
+}
