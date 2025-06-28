@@ -160,7 +160,7 @@ const label = `${total} ${plural(total)} загружено`;
 		const container = document.getElementById('chapter-injection-point');
 		if (!container) return;
 		container.innerHTML = html;
-		readerSection?.scrollTo({ top: 0, behavior: 'smooth' });
+		readerSection?.scrollTo({ top: 0, behavior: 'auto' });
 
 		readerContent?.setAttribute('style', 'display:block;');
 		applySettings(getSettings());
@@ -175,24 +175,26 @@ const label = `${total} ${plural(total)} загружено`;
 
 	const triggerEl = document.getElementById('chapter-trigger');
 	if (triggerEl) {
-		const footerObserver = new IntersectionObserver((entries)=>{
+		let isLoading = false;
+		const footerObserver = new IntersectionObserver((entries) => {
 			const entry = entries[0];
-			if(entry.isIntersecting){
-				setTimeout(()=>{
-					if(entry.isIntersecting){
-						const next = getNextChapterNumber();
-						if(next!==null){
-							loadChapter(next).then(()=>{
-								triggerEl.classList.add('is-hidden');
-								readerSection?.scrollTo({top:0,behavior:'auto'});
-							});
-						}
-					}
-				},0);
-			} else {
-				triggerEl.classList.remove('is-hidden');
+			if (entry.isIntersecting && !isLoading) {
+				const next = getNextChapterNumber();
+				if (next !== null) {
+					isLoading = true;
+					triggerEl.classList.add('is-hidden');
+
+					loadChapter(next).then(() => {
+						readerSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						
+						setTimeout(() => {
+							isLoading = false;
+							triggerEl.classList.remove('is-hidden');
+						}, 500);
+					});
+				}
 			}
-		},{threshold:1});
+		}, { threshold: 0.75 });
 		footerObserver.observe(triggerEl);
 	}
 
