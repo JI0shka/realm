@@ -1097,6 +1097,26 @@ const label = `${total} ${plural(total)} загружено`;
 	#next-chapter-btn:hover .next-arrow {
 		stroke: #ffffff;
 	}
+
+	/* Мобильная фиксация управляющих кнопок */
+	@media (max-width: 768px){
+		:root{
+			--safe-top: env(safe-area-inset-top, 0px);
+			--safe-bottom: env(safe-area-inset-bottom, 0px);
+		}
+
+		/* верхние кнопки */
+		.reader-icon-btn{
+			top: calc(20px + var(--safe-top));
+		}
+
+		/* нижние кнопки навигации */
+		.chapter-nav{
+			padding-bottom: calc(2rem + var(--safe-bottom));
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+	}
 </style>
 
 <style is:global>
