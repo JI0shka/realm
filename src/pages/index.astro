@@ -150,24 +150,31 @@ const label = `${total} ${plural(total)} загружено`;
 		const content = await response.text();
 
 		const nextChapterNumber = getNextChapterNumber();
-		const nextChapterButtonHtml = nextChapterNumber !== null
-			? `
-			<div class="next-chapter-container">
-				<button id="next-chapter-btn" class="next-chapter-btn" aria-label="Следующая глава">
-					<span class="next-chapter-text">Следующая глава</span>
-					<svg class="next-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polyline points="6 15 12 9 18 15"></polyline>
-					</svg>
-				</button>
-			</div>
-			`
-			: '';
+		const prevChapterNumber = getPrevChapterNumber();
+
+		const prevBtnHtml = prevChapterNumber !== null ? `
+			<button id="prev-chapter-btn" class="chapter-nav-btn prev" aria-label="Предыдущая глава">
+				<svg class="nav-arrow left" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="15 6 9 12 15 18"></polyline>
+				</svg>
+				<span class="chapter-nav-text">Предыдущая глава</span>
+			</button>` : '';
+
+		const nextBtnHtml = nextChapterNumber !== null ? `
+			<button id="next-chapter-btn" class="chapter-nav-btn next" aria-label="Следующая глава">
+				<span class="chapter-nav-text">Следующая глава</span>
+				<svg class="nav-arrow right" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="9 6 15 12 9 18"></polyline>
+				</svg>
+			</button>` : '';
+
+		const navHtml = `<div class="chapter-nav">${prevBtnHtml}${nextBtnHtml}</div>`;
 
 		const html = `
 			<div class="reader-view">
 				<h2 class="chapter-title">Глава ${chapter.number}: ${chapter.title}</h2>
 				<div class="chapter-text">${marked.parse(content)}</div>
-				${nextChapterButtonHtml}
+				${navHtml}
 			</div>`;
 
 		const container = document.getElementById('chapter-injection-point');
@@ -184,6 +191,15 @@ const label = `${total} ${plural(total)} загружено`;
 			});
 		}
 
+		if (prevChapterNumber !== null) {
+			document.getElementById('prev-chapter-btn')?.addEventListener('click', () => {
+				const prev = getPrevChapterNumber();
+				if (prev !== null) {
+					loadChapter(prev);
+				}
+			});
+		}
+
 		readerContent?.setAttribute('style', 'display:block;');
 		applySettings(getSettings());
 	}
@@ -193,6 +209,13 @@ const label = `${total} ${plural(total)} загружено`;
 		const currentIdx = chapters.findIndex(c => c.number === currentChapterNumber);
 		if (currentIdx === -1 || currentIdx === chapters.length - 1) return null;
 		return chapters[currentIdx + 1].number;
+	}
+
+	function getPrevChapterNumber(): number | null {
+		if (currentChapterNumber === null) return null;
+		const currentIdx = chapters.findIndex(c => c.number === currentChapterNumber);
+		if (currentIdx <= 0) return null;
+		return chapters[currentIdx - 1].number;
 	}
 
 	// Wheel handler only for exiting reader when at top scrolling up
@@ -801,11 +824,63 @@ const label = `${total} ${plural(total)} загружено`;
 
 	.chapter-nav {
 		display: flex;
+		justify-content: space-between;
 		align-items: center;
-		gap: 0.5rem;
-		font-family: 'Playfair Display', serif;
-		font-size: 2.2rem;
-		font-weight: 700;
+		padding: 2.5rem 0 2rem;
+	}
+
+	.chapter-nav-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		background: transparent;
+		border: none;
+		padding: 0.5rem 0.75rem;
+		color: var(--reader-text);
+		font-family: inherit;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: opacity 0.2s ease;
+	}
+
+	.chapter-nav-btn:hover {
+		opacity: 0.8;
+	}
+
+	.nav-arrow {
+		stroke: var(--reader-text);
+	}
+
+	.left {
+		animation: arrow-left 3s ease-in-out infinite;
+	}
+
+	.right {
+		animation: arrow-right 3s ease-in-out infinite;
+	}
+
+	@keyframes arrow-left {
+		0% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(-4px);
+		}
+		100% {
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes arrow-right {
+		0% {
+			transform: translateX(0);
+		}
+		50% {
+			transform: translateX(4px);
+		}
+		100% {
+			transform: translateX(0);
+		}
 	}
 
 	.chapter-input {
@@ -1025,36 +1100,35 @@ const label = `${total} ${plural(total)} загружено`;
 </style>
 
 <style is:global>
-.next-chapter-container{
-  text-align:center;
-  padding:3rem 0 2rem;
-}
-#next-chapter-btn{
-  display:inline-flex;
-  flex-direction:column;
+.chapter-nav{
+  display:flex;
+  justify-content:space-between;
   align-items:center;
-  justify-content:center;
+  padding:2.5rem 0 2rem;
+}
+.chapter-nav-btn{
+  display:inline-flex;
+  align-items:center;
   gap:0.35rem;
-  padding:0.5rem 1rem;
-  background-color:transparent;
+  background:transparent;
   border:none;
+  padding:0.5rem 0.75rem;
   color:var(--reader-text);
   font-family:inherit;
   font-size:1rem;
   cursor:pointer;
   transition:opacity 0.2s ease;
 }
-.next-chapter-text{
-  font-size:1.1rem;
-  font-weight:500;
-  color:var(--reader-text);
-}
-.next-arrow{
+.chapter-nav-btn:hover{opacity:0.8;}
+.nav-arrow{
   stroke:var(--reader-text);
-  animation:arrow-up-bounce 1.6s ease-in-out infinite;
 }
-@keyframes arrow-up-bounce{
-  0%{transform:translateY(0);}50%{transform:translateY(-4px);}100%{transform:translateY(0);}
+.left{animation:arrow-left 1.6s ease-in-out infinite;}
+.right{animation:arrow-right 1.6s ease-in-out infinite;}
+@keyframes arrow-left{
+  0%{transform:translateX(0);}50%{transform:translateX(-4px);}100%{transform:translateX(0);}
 }
-#next-chapter-btn:hover .next-arrow{stroke:#ffffff;}
+@keyframes arrow-right{
+  0%{transform:translateX(0);}50%{transform:translateX(4px);}100%{transform:translateX(0);}
+}
 </style>
