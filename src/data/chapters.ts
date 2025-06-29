@@ -60,4 +60,14 @@ export const chapters: Chapter[] = [
     title: "Первый павший",
     url: 'https://zyeedsomlodfecw8.public.blob.vercel-storage.com/10.md',
   },
+  {
+    number: 11,
+    title: "Перепутье",
+    url: 'https://zyeedsomlodfecw8.public.blob.vercel-storage.com/11.md',
+  },
+  {
+    number: 12,
+    title: "Запах крови",
+    url: 'https://zyeedsomlodfecw8.public.blob.vercel-storage.com/12.md',
+  },
 ]; 
